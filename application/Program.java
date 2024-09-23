@@ -19,6 +19,7 @@ import model.utils.DTFormatter;
 			Scanner sc = new Scanner(System.in);
 			
 			Empresa empresa = new Empresa();
+			empresa.atualizarFuncionarios();
 
 			try {
 				System.out.println("CADASTRE UM FUNCIONÁRIO: ");
@@ -37,10 +38,9 @@ import model.utils.DTFormatter;
 				
 				Funcionario funcionario = new Funcionario(nome, Cargo.valueOf(cargo), salarioBase, anosDeExperiencia);
 				
-				
-				
 				empresa.adicionarFuncionario(funcionario);
 				
+				empresa.atualizarFuncionarios();
 				
 				RegistrarLogService.registraLog("O funcionario " + funcionario.getNome() + " foi registrado. Horário: " + DTFormatter.fmt.format(Instant.now().atZone(ZoneId.systemDefault())));
 				System.out.println();
@@ -52,6 +52,8 @@ import model.utils.DTFormatter;
 				
 				System.out.println("--------------------- LISTA DE FUNCIONARIOS ---------------------");
 				System.out.println();
+				
+				System.out.println("--------------------- FUNCIONÁRIO A PROMOVER ---------------------");
 				sc.nextLine();
 				System.out.print("Qual funcionário você deseja promover? ");
 				nome = sc.nextLine();
@@ -59,19 +61,36 @@ import model.utils.DTFormatter;
 				System.out.print("Para qual cargo? ");
 				cargo = sc.next().toUpperCase();
 				
-				try {
-					for (int i = 0; i < empresa.getFuncionarios().size(); i++) {
-						if(empresa.getFuncionarios().get(i).getNome().equals(nome)) {
-							String c2 = empresa.getFuncionarios().get(i).getCargo().toString();
-							empresa.promoverFuncionario(empresa.getFuncionarios().get(i), Cargo.valueOf(cargo));
-							RegistrarLogService.registraLog("O funcionário " + empresa.getFuncionarios().get(i).getNome() + " foi promovido de " + c2 + " para " + cargo.toString());
-							break;
-						}
+
+				for (int i = 0; i < empresa.getFuncionarios().size(); i++) {
+					if(empresa.getFuncionarios().get(i).getNome().equals(nome)) {
+						String c2 = empresa.getFuncionarios().get(i).getCargo().toString();
+						empresa.promoverFuncionario(empresa.getFuncionarios().get(i), Cargo.valueOf(cargo));
+						RegistrarLogService.registraLog("O funcionário " + empresa.getFuncionarios().get(i).getNome() + " foi promovido de " + c2 + " para " + cargo.toString() + ". Horário: " + DTFormatter.fmt.format(Instant.now().atZone(ZoneId.systemDefault())));
+						break;
 					}
-				} catch (Exception e) {
-					System.out.println(e.getMessage());
 				}
 				
+				System.out.println("--------------------- FUNCIONÁRIO A PROMOVER ---------------------");
+				System.out.println();
+				
+				System.out.println("--------------------- FUNCIONÁRIO A REMOVER ---------------------");
+	
+				System.out.print("Que funcionário deseja remover? ");
+				sc.nextLine();
+				nome = sc.nextLine();
+				
+				empresa.removerFuncionario(nome);
+				System.out.println("--------------------- FUNCIONÁRIO A REMOVER ---------------------");
+				
+				System.out.println("--------------------- LISTA DE FUNCIONARIOS --------------------------------");
+				
+				for (Funcionario funcionarios : empresa.getFuncionarios()) {
+					System.out.println(funcionarios);
+				}
+				
+				System.out.println("--------------------- LISTA DE FUNCIONARIOS ---------------------");
+
 			} catch (Exception e) {
 				System.out.println("Error: " + e.getMessage());
 			}

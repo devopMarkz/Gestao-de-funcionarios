@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +15,10 @@ import java.util.Scanner;
 
 import model.entities.enums.Cargo;
 import model.exceptions.CargoInexistenteException;
+import model.exceptions.FuncionarioInexistenteException;
 import model.exceptions.PromocaoNaoPermitidaException;
+import model.services.RegistrarLogService;
+import model.utils.DTFormatter;
 
 public class Empresa {
 	
@@ -21,7 +26,10 @@ public class Empresa {
 	private List<Funcionario> funcionarios = new ArrayList<>();
 	
 	public List<Funcionario> getFuncionarios() {
-		
+		return funcionarios;
+	}
+	
+	public void atualizarFuncionarios() {
 		try (Scanner sc = new Scanner(new BufferedReader(new FileReader(registroDeFuncionarios)))){
 			
 			while(sc.hasNextLine()) {
@@ -30,10 +38,8 @@ public class Empresa {
 			}
 			
 		} catch (IOException e) {
-			System.out.println(e.getMessage());
+			System.out.println("A" + e.getMessage());
 		}
-		
-		return funcionarios;
 	}
 	
 	public void adicionarFuncionario(Funcionario funcionario) {
@@ -41,6 +47,29 @@ public class Empresa {
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(registroDeFuncionarios, true))){
 			bw.write(funcionario.toString());
 			bw.newLine();
+		} catch (IOException e) {
+			System.out.println("Error: " + e.getMessage());
+		}
+		
+	}
+	
+	public void removerFuncionario(String nome) throws FuncionarioInexistenteException{
+		List<Funcionario> funcionarios1 = getFuncionarios();
+		for (Funcionario funcionario : funcionarios1) {
+			if(funcionario.getNome().equals(nome)) {
+				RegistrarLogService.registraLog("O funcionário " + funcionario.getNome() + " foi removido do quadro de funcionários. Horário: " + DTFormatter.fmt.format(Instant.now().atZone(ZoneId.systemDefault())));
+				getFuncionarios().remove(funcionario);
+				break;
+			} else {
+				throw new FuncionarioInexistenteException("O funcionário " + nome + " não existe.");
+			}
+		}
+		
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(registroDeFuncionarios, false))){
+			for (Funcionario funcionario : funcionarios) {
+				bw.write(funcionario.toString());
+				bw.newLine();
+			}
 		} catch (IOException e) {
 			System.out.println("Error: " + e.getMessage());
 		}
