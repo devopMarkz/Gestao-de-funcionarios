@@ -78,7 +78,7 @@ public class Empresa {
 			throw new CargoInexistenteException("O cargo " + cargo.name() + " passado como parâmetro é inexistente.");
 		}
 		if(cargo.ordinal() <= funcionario.getCargo().ordinal()) {
-			throw new PromocaoNaoPermitidaException("Não é possível rebaixar o cargo do funcionário de " + funcionario.getCargo().name().toLowerCase() + " pra " + cargo.name().toLowerCase());
+			throw new PromocaoNaoPermitidaException("Não é possível rebaixar o cargo do funcionário " + funcionario.getNome() +" de " + funcionario.getCargo().name().toLowerCase() + " pra " + cargo.name().toLowerCase());
 		}
 	}
 }
