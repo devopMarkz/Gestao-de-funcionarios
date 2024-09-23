@@ -25,11 +25,7 @@ public class Empresa {
 	private static File registroDeFuncionarios = new File("C:\\Users\\marcos.andre\\Desktop\\Suprimentos CPL\\arquivos java\\atividade_GPT_heranca-polimorf.-excec.-enum\\registroDeFuncionarios.txt");
 	private List<Funcionario> funcionarios = new ArrayList<>();
 	
-	public List<Funcionario> getFuncionarios() {
-		return funcionarios;
-	}
-	
-	public void atualizarFuncionarios() {
+	public Empresa() {
 		try (Scanner sc = new Scanner(new BufferedReader(new FileReader(registroDeFuncionarios)))){
 			
 			while(sc.hasNextLine()) {
@@ -42,11 +38,16 @@ public class Empresa {
 		}
 	}
 	
+	public List<Funcionario> getFuncionarios() {
+		return funcionarios;
+	}
+	
 	public void adicionarFuncionario(Funcionario funcionario) {
 		
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(registroDeFuncionarios, true))){
 			bw.write(funcionario.toString());
 			bw.newLine();
+			funcionarios.add(funcionario);
 		} catch (IOException e) {
 			System.out.println("Error: " + e.getMessage());
 		}
@@ -54,25 +55,15 @@ public class Empresa {
 	}
 	
 	public void removerFuncionario(String nome) throws FuncionarioInexistenteException{
-		List<Funcionario> funcionarios1 = getFuncionarios();
-		for (Funcionario funcionario : funcionarios1) {
-			if(funcionario.getNome().equals(nome)) {
+		for (Funcionario funcionario : funcionarios) {
+			if(nome.equalsIgnoreCase(funcionario.getNome())) {
 				RegistrarLogService.registraLog("O funcionário " + funcionario.getNome() + " foi removido do quadro de funcionários. Horário: " + DTFormatter.fmt.format(Instant.now().atZone(ZoneId.systemDefault())));
 				getFuncionarios().remove(funcionario);
 				break;
-			} else {
-				throw new FuncionarioInexistenteException("O funcionário " + nome + " não existe.");
-			}
+			} 
 		}
 		
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(registroDeFuncionarios, false))){
-			for (Funcionario funcionario : funcionarios) {
-				bw.write(funcionario.toString());
-				bw.newLine();
-			}
-		} catch (IOException e) {
-			System.out.println("Error: " + e.getMessage());
-		}
+		atualizarFuncionarios();
 		
 	}
 	
@@ -96,10 +87,9 @@ public class Empresa {
 	}
 
 	public void promoverFuncionario(Funcionario funcionario, Cargo cargo) throws CargoInexistenteException, PromocaoNaoPermitidaException{
-		if(funcionarios.contains(funcionario)) {
-			verificarPromocao(funcionario, cargo);
-			funcionario.setCargo(cargo);
-		}
+		verificarPromocao(funcionario, cargo);
+		funcionario.setCargo(cargo);
+		atualizarFuncionarios();
 	}
 	
 	private void verificarPromocao(Funcionario funcionario, Cargo cargo) throws CargoInexistenteException, PromocaoNaoPermitidaException{
@@ -108,6 +98,17 @@ public class Empresa {
 		}
 		if(cargo.ordinal() <= funcionario.getCargo().ordinal()) {
 			throw new PromocaoNaoPermitidaException("Não é possível rebaixar o cargo do funcionário " + funcionario.getNome() +" de " + funcionario.getCargo().name().toLowerCase() + " pra " + cargo.name().toLowerCase());
+		}
+	}
+	
+	private void atualizarFuncionarios() {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(registroDeFuncionarios, false))){
+			for (Funcionario funcionario : funcionarios) {
+				bw.write(funcionario.toString());
+				bw.newLine();
+			}
+		} catch (IOException e) {
+			System.out.println("Error: " + e.getMessage());
 		}
 	}
 }

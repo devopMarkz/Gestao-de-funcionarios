@@ -19,7 +19,6 @@ import model.utils.DTFormatter;
 			Scanner sc = new Scanner(System.in);
 			
 			Empresa empresa = new Empresa();
-			empresa.atualizarFuncionarios();
 
 			try {
 				System.out.println("CADASTRE UM FUNCIONÁRIO: ");
@@ -39,8 +38,6 @@ import model.utils.DTFormatter;
 				Funcionario funcionario = new Funcionario(nome, Cargo.valueOf(cargo), salarioBase, anosDeExperiencia);
 				
 				empresa.adicionarFuncionario(funcionario);
-				
-				empresa.atualizarFuncionarios();
 				
 				RegistrarLogService.registraLog("O funcionario " + funcionario.getNome() + " foi registrado. Horário: " + DTFormatter.fmt.format(Instant.now().atZone(ZoneId.systemDefault())));
 				System.out.println();
